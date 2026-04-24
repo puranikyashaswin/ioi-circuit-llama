@@ -1,0 +1,5 @@
+python=3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:56:31) [Clang 19.1.7 ]
+torch=2.5.1
+transformers=4.57.3
+psutil=7.2.1
+mps=True

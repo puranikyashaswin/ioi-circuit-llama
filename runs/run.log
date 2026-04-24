@@ -1,0 +1,181 @@
+/opt/homebrew/Caskroom/miniforge/base/envs/mhc/lib/python3.11/site-packages/torchvision/io/image.py:14: UserWarning: Failed to load image Python extension: 'dlopen(/opt/homebrew/Caskroom/miniforge/base/envs/mhc/lib/python3.11/site-packages/torchvision/image.so, 0x0006): Library not loaded: @rpath/libjpeg.9.dylib
+  Referenced from: <EB3FF92A-5EB1-3EE8-AF8B-5923C1265422> /opt/homebrew/Caskroom/miniforge/base/envs/mhc/lib/python3.11/site-packages/torchvision/image.so
+  Reason: tried: '/opt/homebrew/Caskroom/miniforge/base/envs/mhc/lib/python3.11/site-packages/torchvision/../../../libjpeg.9.dylib' (no such file), '/opt/homebrew/Caskroom/miniforge/base/envs/mhc/lib/python3.11/site-packages/torchvision/../../../libjpeg.9.dylib' (no such file), '/opt/homebrew/Caskroom/miniforge/base/envs/mhc/lib/python3.11/lib-dynload/../../libjpeg.9.dylib' (no such file), '/opt/homebrew/Caskroom/miniforge/base/envs/mhc/bin/../lib/libjpeg.9.dylib' (no such file)'If you don't plan on using image functionality from `torchvision.io`, you can ignore this warning. Otherwise, there might be something wrong with your environment. Did you have `libjpeg` or `libpng` installed before building `torchvision` from source?
+  warn(
+model: unsloth/Llama-3.2-1B
+dtype: float16, seeds: [13, 17, 23]
+python: 3.11.14
+torch: 2.5.1, transformers: 4.57.3
+smoke=False
+
+loading unsloth/Llama-3.2-1B on mps (float16)
+loaded in 12.6s, 1236M params
+mem after load: 60 MB
+
+
+==================================================
+seed=13
+==================================================
+
+attribution (ig_steps=4)
+caching contributions (16 layers)...
+  layer 0/15 -> 9.9453
+  layer 1/15 -> 0.0238
+  layer 2/15 -> 3.4047
+  layer 3/15 -> 2.6994
+  layer 4/15 -> 1.2603
+  layer 5/15 -> 7.1774
+  layer 6/15 -> 0.5889
+  layer 7/15 -> 3.0849
+  layer 8/15 -> 12.8906
+  layer 9/15 -> 4.2277
+  layer 10/15 -> -3.8167
+  layer 11/15 -> 4.5923
+  layer 12/15 -> -2.5355
+  layer 13/15 -> 0.9222
+  layer 14/15 -> 4.6765
+  layer 15/15 -> -4.3075
+selected layers [0, 8] (k=2)
+took 131.2s
+
+evaluating circuit [0, 8]
+  clean=5.9163 corrupt=-5.0391 patched=4.9818
+  faithfulness=0.9147
+
+random baselines (n=10)
+  trial 0: [8, 15] -> 0.4984
+  trial 1: [9, 14] -> 1.0891
+  trial 2: [7, 12] -> 0.0765
+  trial 3: [7, 11] -> 0.3339
+  trial 4: [8, 12] -> 0.2858
+  trial 5: [2, 3] -> 0.0870
+  trial 6: [1, 12] -> 0.0409
+  trial 7: [2, 3] -> 0.0870
+  trial 8: [3, 4] -> 0.0576
+  trial 9: [0, 8] -> 0.9147
+  avg random faith=0.3471
+
+robustness (mild)
+  faith=0.9207
+
+robustness (strong)
+  faith=0.9508
+
+saved seed_13.json
+
+==================================================
+seed=17
+==================================================
+
+attribution (ig_steps=4)
+caching contributions (16 layers)...
+  layer 0/15 -> 8.0028
+  layer 1/15 -> -1.3760
+  layer 2/15 -> -0.7524
+  layer 3/15 -> 0.4500
+  layer 4/15 -> 0.9041
+  layer 5/15 -> 0.7542
+  layer 6/15 -> 2.0615
+  layer 7/15 -> 0.6729
+  layer 8/15 -> 9.1482
+  layer 9/15 -> 6.2249
+  layer 10/15 -> 0.2303
+  layer 11/15 -> 2.7220
+  layer 12/15 -> 1.6642
+  layer 13/15 -> 0.8942
+  layer 14/15 -> 10.3514
+  layer 15/15 -> 4.7238
+selected layers [8, 14] (k=2)
+took 143.8s
+
+evaluating circuit [8, 14]
+  clean=5.3385 corrupt=-5.0163 patched=1.7425
+  faithfulness=0.6527
+
+random baselines (n=10)
+  trial 0: [3, 11] -> 0.3277
+  trial 1: [3, 6] -> 0.0166
+  trial 2: [11, 13] -> 0.3884
+  trial 3: [0, 2] -> 0.9855
+  trial 4: [0, 4] -> 0.9539
+  trial 5: [4, 7] -> 0.0619
+  trial 6: [12, 15] -> 0.2782
+  trial 7: [0, 15] -> 1.2052
+  trial 8: [8, 10] -> 0.3828
+  trial 9: [7, 14] -> 0.4493
+  avg random faith=0.5050
+
+robustness (mild)
+  faith=0.6152
+
+robustness (strong)
+  faith=0.5720
+
+saved seed_17.json
+
+==================================================
+seed=23
+==================================================
+
+attribution (ig_steps=4)
+caching contributions (16 layers)...
+  layer 0/15 -> 12.5789
+  layer 1/15 -> 1.1737
+  layer 2/15 -> 0.4096
+  layer 3/15 -> -0.7749
+  layer 4/15 -> 3.1136
+  layer 5/15 -> 4.3902
+  layer 6/15 -> 1.2469
+  layer 7/15 -> 5.1617
+  layer 8/15 -> 10.8330
+  layer 9/15 -> 9.9347
+  layer 10/15 -> -1.1462
+  layer 11/15 -> 1.8458
+  layer 12/15 -> -2.4530
+  layer 13/15 -> -6.4475
+  layer 14/15 -> 2.3189
+  layer 15/15 -> 5.5122
+selected layers [0, 8] (k=2)
+took 169.4s
+
+evaluating circuit [0, 8]
+  clean=5.3796 corrupt=-5.2663 patched=4.5739
+  faithfulness=0.9243
+
+random baselines (n=10)
+  trial 0: [5, 15] -> 0.2173
+  trial 1: [11, 13] -> 0.3636
+  trial 2: [5, 8] -> 0.4118
+  trial 3: [8, 14] -> 0.6649
+  trial 4: [6, 9] -> 0.6282
+  trial 5: [8, 12] -> 0.3244
+  trial 6: [4, 7] -> 0.0753
+  trial 7: [3, 5] -> 0.1260
+  trial 8: [2, 6] -> -0.0481
+  trial 9: [8, 15] -> 0.5050
+  avg random faith=0.3268
+
+robustness (mild)
+  faith=0.9273
+
+robustness (strong)
+  faith=0.9642
+
+saved seed_23.json
+
+==================================================
+done (3 seeds, 806.8s)
+==================================================
+
+circuit faith: 0.8306
+random faith:  0.3930
+gap:           0.4376
+stability:     0.5556
+robustness(mild): 0.8211
+robustness(strong): 0.8290
+peak mem:      395 MB
+total:         806.8s
+
+run 'python scripts/plot_results.py' to generate attribution plot
+
+finished in 806.8s

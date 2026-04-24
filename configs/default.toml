@@ -1,0 +1,14 @@
+run_name = "llama32_1b"
+model_name = "unsloth/Llama-3.2-1B"
+device = "auto"
+dtype = "float16"
+batch_size = 1
+dataset_size = 24
+discovery_examples = 12
+ig_steps = 4
+sparsity = 0.15
+corruption_base = "mild"
+corruption_robustness = ["mild", "strong"]
+seed_list = [13, 17, 23]
+n_random_baselines = 10
+output_root = "runs"
