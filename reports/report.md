@@ -15,7 +15,7 @@
 | Random baselines | 10 per seed |
 | Runtime | 806.8s (~13 min) |
 | Peak memory | 395 MB RSS. MPS does not expose GPU allocation directly; estimated ~2.5 GB model weights at float16 |
-| Repository | https://github.com/puranikyashaswin/ioi-llama-circuit |
+
 
 Command:
 ```bash
