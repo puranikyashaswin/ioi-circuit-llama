@@ -3,6 +3,8 @@ import gc
 import psutil
 import os
 import time
+import random
+import numpy as np
 
 
 def safe_div(a, b, eps=1e-8):
@@ -16,11 +18,35 @@ def jaccard(s1, s2):
     return len(a & b) / len(a | b)
 
 
+def name_tokens(tokenizer, name):
+    """Token ids for a name, with a leading space like the model sees it.
+    Returns all subtokens so multi-token names (e.g. a name split across
+    subwords) are scored correctly instead of only the first subtoken.
+    """
+    ids = tokenizer.encode(" " + name, add_special_tokens=False)
+    if not ids:
+        raise ValueError(f"name {name!r} produced no tokens")
+    return ids
+
+
 def logit_diff(logits, cid, wid):
+    """Mean logit difference between the correct and wrong name tokens.
+    cid/wid are lists of token ids (multi-token names are averaged).
+    """
     last = logits[:, -1, :]
-    c = last.gather(1, cid.unsqueeze(1)).squeeze(1)
-    w = last.gather(1, wid.unsqueeze(1)).squeeze(1)
+    ct = torch.tensor(cid, device=last.device)
+    wt = torch.tensor(wid, device=last.device)
+    c = last.gather(1, ct.unsqueeze(1)).mean(dim=1)
+    w = last.gather(1, wt.unsqueeze(1)).mean(dim=1)
     return (c - w).mean().item()
+
+
+def set_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
 
 
 def load_model(model_name, device, dtype_str):
@@ -42,11 +68,7 @@ def load_model(model_name, device, dtype_str):
     t0 = time.time()
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    # try new API first, fall back to old torch_dtype arg
-    try:
-        model = AutoModelForCausalLM.from_pretrained(model_name, dtype=dtype)
-    except TypeError:
-        model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=dtype)
+    model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=dtype)
     model = model.to(device)
     model.eval()
 

@@ -5,7 +5,8 @@ import random
 import os
 from statistics import mean
 
-from .utils import safe_div, jaccard, logit_diff, get_layers, n_layers, mem_mb, cleanup
+from .utils import (safe_div, jaccard, logit_diff, name_tokens, set_seed,
+                     get_layers, n_layers, mem_mb, cleanup)
 from .dataset import make_pairs
 from .attribution import score_all_layers, pick_top_layers
 
@@ -55,21 +56,19 @@ def patch_and_measure(model, tokenizer, pairs, circuit_layers, device):
     cm_sum, xm_sum, pm_sum = 0.0, 0.0, 0.0
 
     for pair in pairs:
-        cid = tokenizer.encode(" " + pair["correct_name"], add_special_tokens=False)[0]
-        wid = tokenizer.encode(" " + pair["wrong_name"], add_special_tokens=False)[0]
-        ct = torch.tensor([cid], device=device)
-        wt = torch.tensor([wid], device=device)
+        cid = name_tokens(tokenizer, pair["correct_name"])
+        wid = name_tokens(tokenizer, pair["wrong_name"])
 
         clean_c = _get_contribs(model, tokenizer, pair["clean"], layers, device)
         corrupt_c = _get_contribs(model, tokenizer, pair["corrupt"], layers, device)
 
         toks_c = tokenizer(pair["clean"], return_tensors="pt").to(device)
         with torch.no_grad():
-            cm = logit_diff(model(**toks_c).logits, ct, wt)
+            cm = logit_diff(model(**toks_c).logits, cid, wid)
 
         toks_x = tokenizer(pair["corrupt"], return_tensors="pt").to(device)
         with torch.no_grad():
-            xm = logit_diff(model(**toks_x).logits, ct, wt)
+            xm = logit_diff(model(**toks_x).logits, cid, wid)
 
         # add back clean contribution deltas for the circuit layers only
         corrections = {}
@@ -81,7 +80,7 @@ def patch_and_measure(model, tokenizer, pairs, circuit_layers, device):
             handles.append(layers[li].register_forward_hook(_correction_hook(corrections[li])))
 
         with torch.no_grad():
-            pm = logit_diff(model(**toks_x).logits, ct, wt)
+            pm = logit_diff(model(**toks_x).logits, cid, wid)
         for h in handles:
             h.remove()
 
@@ -108,6 +107,10 @@ def run(model, tokenizer, cfg, device, smoke=False):
     seeds = cfg["seed_list"]
     if smoke:
         seeds = [seeds[0]]
+
+    # seed global RNGs for reproducibility of torch/numpy ops. Per-seed
+    # data and baseline sampling use explicit seeds on top of this.
+    set_seed(int(cfg.get("seed", seeds[0])))
 
     ds_size = cfg.get("dataset_size", 24)
     disc_n = cfg.get("discovery_examples", 12)
@@ -183,6 +186,14 @@ def run(model, tokenizer, cfg, device, smoke=False):
         ravg = mean(rfaiths) if rfaiths else 0.0
         print(f"  avg random faith={ravg:.4f}")
 
+        # a discovered circuit only means something if it beats a same-sparsity
+        # random mask. Flag it loudly when it does not, so weak seeds are not
+        # hidden inside an aggregate average.
+        beats_random = faith > ravg
+        if not beats_random:
+            print(f"  WARNING: circuit faith {faith:.4f} <= random avg {ravg:.4f}; "
+                  f"this circuit is not better than random")
+
         # --- robustness ---
         rob = {}
         for ct in corr_rob:
@@ -201,6 +212,7 @@ def run(model, tokenizer, cfg, device, smoke=False):
             "scores": scores.tolist(),
             "clean": m["clean"], "corrupt": m["corrupt"], "patched": m["patched"],
             "faith": faith,
+            "beats_random": beats_random,
             "rand_faiths": rfaiths, "rand_layers": rlayers, "rand_avg": ravg,
             "robustness": rob,
             "disc_time": time.time() - td,

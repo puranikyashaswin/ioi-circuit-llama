@@ -36,7 +36,8 @@ def main():
     print(f"smoke={args.smoke_test}")
     print()
 
-    from ioi_circuit.utils import load_model, mem_mb
+    from ioi_circuit.utils import load_model, mem_mb, set_seed
+    set_seed(int(cfg.get("seed", 42)))
     model, tokenizer, device, dtype = load_model(
         cfg["model_name"], cfg["device"], cfg["dtype"]
     )

@@ -7,16 +7,24 @@ Per-layer EAP-IG circuit discovery for indirect object identification on `unslot
 | Metric | Value |
 |---|---|
 | Circuit | layers [0, 8] (seeds 13, 23) / [8, 14] (seed 17) |
-| Circuit faithfulness | 0.831 |
-| Random baseline | 0.393 |
-| Gap | +0.438 (2.1x random) |
+| Circuit faithfulness | 0.831 (avg) |
+| Random baseline | 0.393 (avg) |
+| Gap | +0.438 (2.1x random, avg) |
 | Stability (Jaccard) | 0.556 |
 | Robustness mild | 0.821 |
 | Robustness strong | 0.829 |
 | Runtime | ~13 min on Apple M2 8GB |
-| Peak memory | ~395 MB RSS |
+| Peak memory | ~395 MB RSS (model weights ~2.5 GB on MPS) |
 
 Full report: [`reports/report.md`](reports/report.md)
+
+> **Caveat on the headline numbers.** The 2.1x gap is the *average* across
+> the three seeds. Seed 17's discovered circuit `[8, 14]` (faith 0.653) sits
+> inside its own random-baseline range (avg 0.505; three of ten random masks
+> scored higher), so the aggregate gap is carried by seeds 13 and 23. The
+> pipeline now prints a `WARNING` whenever a discovered circuit does not beat
+> its random baseline (see `src/ioi_circuit/evaluation.py`), so this cannot be
+> hidden inside an average on future runs.
 
 ## What I Learned
 

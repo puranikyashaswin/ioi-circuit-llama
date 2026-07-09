@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from .utils import get_layers, n_layers, cleanup
+from .utils import get_layers, n_layers, cleanup, name_tokens
 
 
 def score_all_layers(model, tokenizer, pairs, ig_steps=4, device="mps"):
@@ -27,8 +27,8 @@ def score_all_layers(model, tokenizer, pairs, ig_steps=4, device="mps"):
 
     cids, wids = [], []
     for pair in pairs:
-        cids.append(tokenizer.encode(" " + pair["correct_name"], add_special_tokens=False)[0])
-        wids.append(tokenizer.encode(" " + pair["wrong_name"], add_special_tokens=False)[0])
+        cids.append(name_tokens(tokenizer, pair["correct_name"]))
+        wids.append(name_tokens(tokenizer, pair["wrong_name"]))
 
     alphas = np.linspace(0, 1, ig_steps)
 
@@ -40,8 +40,6 @@ def score_all_layers(model, tokenizer, pairs, ig_steps=4, device="mps"):
         for pi, pair in enumerate(pairs):
             ca_li = clean_contribs[li][pi]
             xa_li = corrupt_contribs[li][pi]
-            cid = torch.tensor([cids[pi]], device=device)
-            wid = torch.tensor([wids[pi]], device=device)
 
             pair_score = 0.0
             for alpha in alphas:
@@ -53,7 +51,11 @@ def score_all_layers(model, tokenizer, pairs, ig_steps=4, device="mps"):
                 with torch.enable_grad():
                     out = model(**toks)
                     last = out.logits[:, -1, :]
-                    diff = (last[:, cid[0]] - last[:, wid[0]]).sum()
+                    cid_t = torch.tensor(cids[pi], dtype=torch.long, device=device)
+                    wid_t = torch.tensor(wids[pi], dtype=torch.long, device=device)
+                    c = last.gather(1, cid_t.unsqueeze(0)).mean()
+                    w = last.gather(1, wid_t.unsqueeze(0)).mean()
+                    diff = c - w
                     diff.backward()
 
                 handle.remove()

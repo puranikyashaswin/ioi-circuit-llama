@@ -45,9 +45,9 @@ Hook placement matters. LLaMA blocks add the residual internally, so `register_f
 | Clean IOI score | 5.545 avg |
 | Corrupt IOI score | -5.107 avg |
 | Patched IOI score | 3.766 avg |
-| Circuit faithfulness | 0.831 |
-| Random baseline | 0.393 |
-| Gap | +0.438 (circuit is 2.1x random) |
+| Circuit faithfulness | 0.831 (avg; 0.915 / 0.653 / 0.924 by seed) |
+| Random baseline | 0.393 (avg) |
+| Gap | +0.438 (circuit is 2.1x random, **average across seeds**) |
 | Stability (Jaccard) | 0.556 |
 | Robustness mild | 0.821 |
 | Robustness strong | 0.829 |
@@ -66,7 +66,7 @@ Hook placement matters. LLaMA blocks add the residual internally, so `register_f
 
 **Layer 8 is the stable layer.** All three seeds select layer 8. Seed 17 swaps layer 0 for layer 14, but the shared layer 8 is enough to keep the aggregate circuit well above random.
 
-**Seed 17 random baseline is inflated.** Three of ten random draws include layer 0, pushing that seed's random average to 0.505. Excluding those layer-0 draws drops it close to 0.30, which matches seeds 13 and 23. Layer 0 is genuinely useful, so random masks that include it are not meaningless contamination. They are a sign that early name information is doing real work.
+**Seed 17's circuit does not reliably beat random, and the headline number hides it.** Seed 17 selects `[8, 14]` (faith 0.653), but its random-baseline average is 0.505 and three of ten random masks score *higher* (e.g. `[0,15]` -> 1.21, `[0,2]` -> 0.99, `[0,4]` -> 0.95). So for seed 17 the discovery did not produce a circuit meaningfully better than chance; the aggregate "2.1x random" is carried entirely by seeds 13 and 23. This is now caught automatically: `evaluation.py` prints a `WARNING: circuit faith ... <= random avg ...` whenever a discovered circuit is not better than its random baseline, and records `beats_random` per seed in the saved JSON. The likely root cause is that the EAP-IG attribution score mis-ranks layer 0 for seed 17 (it ranks 3rd there, yet every random mask containing layer 0 patches best) — the discovery metric and the causal patching metric disagree, which is the main open methodological question in this project.
 
 **Faithfulness above 1.0 can happen.** For example, seed 17 has a random draw [0,15] with faithfulness 1.21. Contribution patching can overcorrect when the injected delta pushes the patched margin past the clean baseline. That is a measurement artifact of patching under noisy corrupt baselines, not a code bug.
 
